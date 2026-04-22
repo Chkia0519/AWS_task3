@@ -1,7 +1,34 @@
 # 【簡答題】
-## 1. 何為 IaC? 除了 terraform 以外，還有哪些工具呢？
-## 2. 執行 terraform 時，會有一個檔案 .tfstate，功能是什麼？
+## 1. 何為 IaC? 除了 terraform 以外，還有哪些工具呢？　
+
+IaC -> 用「程式碼」來定義、建立、修改與管理 IT 基礎架構，IaC 就是把「架構」當成「軟體」來管理。
+
+其他 IaC 工具 :　
+
+AWS CloudFormation　-> Only for AWS 
+
+Azure ARM / Bicep -> Microsoft Azure 官方 IaC，目前實務上幾乎都用 Bicep。 只能用在 Azure ，生態圈比 Terraform 小
+
+Pulumi -> 用「程式語言」寫 IaC，酷 他可以用C#、Py、JS來定義基礎架構  
+
+## 2. 執行 terraform 時，會有一個檔案 .tfstate，功能是什麼？ 
+
+.tf -> 我要的目標狀態 
+
+.tfstate -> terraform 記得的實際狀態 
+
+但是.tfstate 不是**即時狀態**，而是**上一次知道的狀態**，只有在 **terraform apply** 時才會更新
+
+.tfstate 是 Terraform 用來記錄「它所管理的資源，在真實世界中是哪些、目前狀態是什麼」的狀態檔。  
+
 ## 3. 多人協作時，如何確保 terraform 的狀態一致性？
+
+Remote Backend -> 把 .tfstate 放在「共享的遠端位置」，為確保所有人的狀態一致，只存在一份 .tfstate
+
+State Locking -> 避免同時 apply 導致檔案損毀 同一時間 只能一個人 apply，當有人正在 apply 就會上鎖，直到操作完成才會解鎖
+
+Git -> 作為唯一變更來源，避免各自亂改 .tf
+
 ## 4. 何為冪等性？他在 IaC 工具中帶來怎樣的好處？
 ## 5. 何為 terraform module，它解決了什麼問題？
 ## 6. terraform 的資源創建順序為何？如何去控制相依性？
