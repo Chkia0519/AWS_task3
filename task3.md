@@ -1,7 +1,9 @@
 # 【簡答題】
 ## 1. 何為 IaC? 除了 terraform 以外，還有哪些工具呢？　
 
-IaC -> 用「程式碼」來定義、建立、修改與管理 IT 基礎架構，IaC 就是把「架構」當成「軟體」來管理。
+IaC -> 用「程式碼」來定義、建立、修改與管理 IT 基礎架構（例如 VM、網路、資料庫、IAM)，IaC 就是把「架構」當成「軟體」來管理。
+
+不再手動點 UI，而是用可版本控、可重現的方式部署環境。 (有點像是Docker?
 
 其他 IaC 工具 :　
 
@@ -21,6 +23,7 @@ Pulumi -> 用「程式語言」寫 IaC，酷 他可以用C#、Py、JS來定義�
 
 .tfstate 是 Terraform 用來記錄「它所管理的資源，在真實世界中是哪些、目前狀態是什麼」的狀態檔。  
 
+Terraform 會先計算目標狀態 (.tf) 與目前狀態 (.tfstate) 的差異，產生執行計畫，然後透過 Provider 呼叫雲端 API 來完成資源的新增、修改或刪除，以達到狀態一致。
 ## 3. 多人協作時，如何確保 terraform 的狀態一致性？
 
 Remote Backend -> 把 .tfstate 放在「共享的遠端位置」，為確保所有人的狀態一致，只存在一份 .tfstate
@@ -80,6 +83,40 @@ VPC 寫一次就好，可以用不同的參數呼叫，很容易理解架構也�
 4.解決「變更風險太高」的問題 -> 修改 module 時 可明確知道：哪些環境會受影響、哪些呼叫這個 module & 限制可變更範圍（guardrail），避免誤動關鍵架構，提升安全性與一致性
 
 ## 6. terraform 的資源創建順序為何？如何去控制相依性？
+
+**Terraform 不靠寫的順序執行，而是靠「相依性圖（dependency graph）」自動決定順序。**
+
+Terraform 會根據資源之間的參考關係，自動推導出正確的建立順序，而不是依照 .tf 撰寫順序。
+
+```
+解析 .tf
+↓
+建立 dependency graph（資源依賴圖）
+↓
+拓撲排序（topological sort）
+↓
+依序執行（可並行）
+```
+
+1.隱式相依 -> 透過「引用」產生
+
+```
+resource "aws_subnet" "subnet" {
+  vpc_id = aws_vpc.main.id
+}
+```
+先建 VPC -> 再建 Subnet
+
+2.顯式相依 -> 用 depends_on
+
+```
+resource "aws_instance" "web" {
+  depends_on = [aws_subnet.subnet]
+}
+```
+意思：先做 subnet，才能做這台 EC2
+
+如果我沒寫 depends_on = [aws_subnet.subnet] 他就不會建立 subnet 他會直接建EC2
 
 
 ## 7. 何為 datasource?
