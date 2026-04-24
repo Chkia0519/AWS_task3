@@ -107,7 +107,7 @@ resource "aws_subnet" "subnet" {
 ```
 先建 VPC -> 再建 Subnet
 
-2.顯式相依 -> 用 depends_on
+2.顯式相依 -> 用 depends_on **必要時才使用 depends_on 強制順序**
 
 ```
 resource "aws_instance" "web" {
@@ -118,9 +118,37 @@ resource "aws_instance" "web" {
 
 如果我沒寫 depends_on = [aws_subnet.subnet] 他就不會建立 subnet 他會直接建EC2
 
-
 ## 7. 何為 datasource?
+
+Data source 是用來「讀取已存在的資源或外部資訊」，而不是建立新資源
+
+只讀（Read-only）、不建立任何東西、不改變現在狀況
+
+```
+
+data "aws_vpc" "default" {
+  default = true
+}
+
+resource "aws_instance" "web" {
+  subnet_id = data.aws_vpc.default.id
+}
+
+```
+不要自己建 VPC，用 AWS 已經存在的那個就好查一下 已經存在的 VPC -> 把它的資訊拿來用
+
+可用在:
+
+1.讀取既有資源或外部資料
+
+2.跨 module 以及跨系統的整合
+
 ## 8. 若使用 terraform 創建一台 ec2，希望對該 ec2 進行初始化操作（例如安裝 Nginx 或是需要執行某個 shell script），有哪些方式做到這件事，盡可能地列舉。
+1.使用 EC2 User Data : Terraform 建立 EC2 -> EC2 在第一次開機時，可以自己安裝我要的程式做初始化
+
+2.Terraform file + remote-exec -> EC2 建好之後，Terraform 用 SSH 連進 EC2，Terraform執行初始化指令
+
+3.
 
 # 【實作題】
 ## 1. 創建一個 project(github repo)，使用 terraform 創建一台 EC2，並且設定相關資源，例如 VPC（可選）、security group(firewall)、key pair 等。（可以嘗試跟 ai 詢問怎樣的檔案架構是比較好的。）
