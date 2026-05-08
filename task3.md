@@ -148,7 +148,12 @@ resource "aws_instance" "web" {
 
 2.Terraform file + remote-exec -> EC2 建好之後，Terraform 用 SSH 連進 EC2，Terraform執行初始化指令
 
-3.
+3.使用 User Data + shell 檔案(.sh) 
+
+4.用 local-exec 在本機執行指令 *較不推薦，會依賴本機環境(例:key路徑對錯、網路是否能連 EC2)*
+
+5.用 AWS Systems Manager Session Manager / Run Command
+
 
 # 【實作題】
 ## 1. 創建一個 project(github repo)，使用 terraform 創建一台 EC2，並且設定相關資源，例如 VPC（可選）、security group(firewall)、key pair 等。（可以嘗試跟 ai 詢問怎樣的檔案架構是比較好的。）
